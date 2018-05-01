@@ -16,7 +16,7 @@ export default (env: any = 'development') => {
   const isDevBuild: boolean = env == 'development';
   
   const sharedConfig: webpack.Configuration = {
-    mode: env,
+    mode: 'development',
     resolve: {
       extensions: ['.ts', '.js'],
     },
@@ -55,6 +55,7 @@ export default (env: any = 'development') => {
         filename: isDevBuild ? 'index.html' : 'index.php', // TODO: [ext]
         excludeChunks: ['runtime~polyfills', 'polyfills'], // conditionally load polyfills in the html file
         // inlineSource: '.()$',
+        chunksSortMode: 'none',
       }),
       // new HtmlWebpackInlineSourcePlugin(),
       new webpack.NamedModulesPlugin(),
@@ -97,22 +98,22 @@ export default (env: any = 'development') => {
       publicPath: '/wp-content/themes/ng-bmc-theme/dist/',
     },
     optimization: {
-      splitChunks: {
-        cacheGroups: {
-          vendor: {
-            test: /node_modules/,
-            chunks: "initial",
-            name: "vendor",
-            priority: 10,
-            enforce: true
-          },
-        }
-      },
-      runtimeChunk: true,
+     splitChunks: {
+       cacheGroups: {
+         vendor: {
+           test: /node_modules/,
+           chunks: "initial",
+           name: "vendor",
+           priority: 10,
+           enforce: true
+         },
+       },
+     },
+     runtimeChunk: true,
     },
 
     plugins: [
-      new CleanWebpackPlugin(['dist']),
+      new CleanWebpackPlugin(['dist/*.*']),            
       new ManifestPlugin(),
       new WorkboxPlugin.GenerateSW({
         swDest: 'sw.js',
@@ -120,7 +121,7 @@ export default (env: any = 'development') => {
         skipWaiting: true,
         chunks: ['runtime~app', 'vendor', 'app'],
         runtimeCaching: [{
-          urlPattern: new RegExp('^http://localhost/$'),
+          urlPattern: new RegExp('(localhost/$|wp-content/themes/ng-bmc-theme/dist/)'),
           handler: 'networkFirst',
         }],
       }),
